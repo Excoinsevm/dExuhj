@@ -12,8 +12,8 @@ export default function Navbar({ walletState, walletDispatch }) {
             params: [{ chainId: event.target.value }]
         })
 
-        if (event.target.value == "0x13881") {
-            walletDispatch({ type: WALLET_TYPES.SET_SYMBOL, payload: "Matic" })
+        if (event.target.value == "0x24a") {
+            walletDispatch({ type: WALLET_TYPES.SET_SYMBOL, payload: "Capy" })
         }
         else {
             walletDispatch({ type: WALLET_TYPES.SET_SYMBOL, payload: "Eth" })
