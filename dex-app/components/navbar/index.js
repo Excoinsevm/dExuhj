@@ -33,8 +33,8 @@ export default function Navbar({ walletState, walletDispatch }) {
                         <div className="absolute left-[23%] text-slate-50 px-2">
                             @<select onChange={handleNetwork} className="border-none outline-none bg-slate-900 form-select py-1.5 text-base font-norma text-slate-300 " name="networks" id="networks">
                                 <option className="border-none outline-none" value="0" disabled>select</option>
-                                <option className="border-none outline-none" value="0x13881">mumbai</option>
-                                <option className="border-none outline-none" value="0x539">localhost</option>
+                                <option className="border-none outline-none" value="0x24a">CapyTestnet</option>
+                                <option className="border-none outline-none" value="0" disabled>select</option>
                             </select>
                         </div>
                     </div>
