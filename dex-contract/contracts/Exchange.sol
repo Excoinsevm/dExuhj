@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-// import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Exchange {
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract Exchange is ReentrancyGuard {
     event DepositToken(
         address token,
         address user,
@@ -63,7 +64,6 @@ contract Exchange {
     uint256 public feePercent;
     uint256 public ordersCount;
 
-    // token, msg.sender, balances
     mapping(address => mapping(address => uint256)) public tokens;
     mapping(uint256 => _Order) public orders;
     mapping(uint256 => bool) public ordersCancelled;
@@ -85,7 +85,7 @@ contract Exchange {
         );
     }
 
-    function withdrawToken(address _tokenAddress, uint256 _amount) public {
+    function withdrawToken(address _tokenAddress, uint256 _amount) public nonReentrant {
         require(
             tokens[_tokenAddress][msg.sender] >= _amount,
             "insufficient amount"
@@ -157,7 +157,7 @@ contract Exchange {
         );
     }
 
-    function fillOrder(uint256 _id) public {
+    function fillOrder(uint256 _id) public nonReentrant {
         _Order storage _order = orders[_id];
         require(_id <= ordersCount && _id > 0, "Order does not exist");
         require(!ordersCancelled[_id], "ordersCancelled");
@@ -176,31 +176,35 @@ contract Exchange {
     }
 
     function _trade(
-    uint256 id,
-    address user,
-    address tokenGet,
-    uint256 amountGet,
-    address tokenGive,
-    uint256 amountGive
-) internal {
-    uint256 _feeAmount = (amountGet * feePercent) / 100;
+        uint256 id,
+        address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive
+    ) internal {
+        uint256 _feeAmount = (amountGet * feePercent) / 1;
 
-    tokens[tokenGet][msg.sender] -= amountGet + _feeAmount;
-    tokens[tokenGet][user] += amountGet;
-    tokens[tokenGet][feeAccount] += _feeAmount;
+        // ✅ Pre-checks
+        require(tokens[tokenGet][msg.sender] >= amountGet + _feeAmount, "Insufficient balance with fee");
+        require(tokens[tokenGive][user] >= amountGive, "Insufficient offerer balance");
 
-    tokens[tokenGive][user] -= amountGive;
-    tokens[tokenGive][msg.sender] += amountGive;
+        tokens[tokenGet][msg.sender] -= amountGet + _feeAmount;
+        tokens[tokenGet][user] += amountGet;
+        tokens[tokenGet][feeAccount] += _feeAmount;
 
-    emit Trade(
-        id,
-        msg.sender,
-        user,
-        tokenGet,
-        amountGet,
-        tokenGive,
-        amountGive,
-        block.timestamp
-    );
-}
+        tokens[tokenGive][user] -= amountGive;
+        tokens[tokenGive][msg.sender] += amountGive;
+
+        emit Trade(
+            id,
+            msg.sender,
+            user,
+            tokenGet,
+            amountGet,
+            tokenGive,
+            amountGive,
+            block.timestamp
+        );
+    }
 }
