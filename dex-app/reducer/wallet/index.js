@@ -24,7 +24,7 @@ const WALLET_INITIAL_STATE = {
     walletAddress: "",
     network: "",
     provider: null,
-    symbol: "MATIC",
+    symbol: "CAPY",
     balance: ethers.utils.formatUnits(0, 18)
 }
 
