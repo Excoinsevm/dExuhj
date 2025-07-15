@@ -176,30 +176,31 @@ contract Exchange {
     }
 
     function _trade(
-        uint256 id,
-        address user,
-        address tokenGet,
-        uint256 amountGet,
-        address tokenGive,
-        uint256 amountGive
-    ) internal {
-        // uint256 _feeAmount = (amountGet * feePercent) / 100;
+    uint256 id,
+    address user,
+    address tokenGet,
+    uint256 amountGet,
+    address tokenGive,
+    uint256 amountGive
+) internal {
+    uint256 _feeAmount = (amountGet * feePercent) / 100;
 
-        tokens[tokenGet][msg.sender] -= amountGet;
-        tokens[tokenGet][user] += amountGet;
+    tokens[tokenGet][msg.sender] -= amountGet + _feeAmount;
+    tokens[tokenGet][user] += amountGet;
+    tokens[tokenGet][feeAccount] += _feeAmount;
 
-        tokens[tokenGive][user] -= amountGive;
-        tokens[tokenGive][msg.sender] += amountGive;
+    tokens[tokenGive][user] -= amountGive;
+    tokens[tokenGive][msg.sender] += amountGive;
 
-        emit Trade(
-            id,
-            msg.sender,
-            user,
-            tokenGet,
-            amountGet,
-            tokenGive,
-            amountGive,
-            block.timestamp
-        );
-    }
+    emit Trade(
+        id,
+        msg.sender,
+        user,
+        tokenGet,
+        amountGet,
+        tokenGive,
+        amountGive,
+        block.timestamp
+    );
+}
 }
